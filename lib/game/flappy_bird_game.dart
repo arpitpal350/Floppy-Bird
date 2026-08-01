@@ -1,9 +1,9 @@
-import 'dart0:async' as async; // Flame ke Timer collision ko avoid karne ke liye
+import 'dart:async' as async;
 
 import 'package:flame/collisions.dart';
-import 'package:flame/components.dart' hide Timer; // Timer hide kar diya
+import 'package:flame/components.dart' hide Timer;
 import 'package:flame/events.dart';
-import 'package:flame/game.dart' hide Timer; // Yahan se bhi Timer hide kar diya
+import 'package:flame/game.dart' hide Timer;
 import 'package:flutter/foundation.dart';
 
 import '../overlays/game_over_overlay.dart';
@@ -24,7 +24,7 @@ class FlappyBirdGame extends FlameGame with TapDetector, HasCollisionDetection {
   GameStatus status = GameStatus.playing;
   late Bird bird;
   Ground? _ground;
-  async.Timer? _pipeTimer; // Explicit Dart Async Timer
+  async.Timer? _pipeTimer;
   double get _groundHeight => 100;
   double get _playHeight => size.y - _groundHeight;
 
@@ -45,7 +45,7 @@ class FlappyBirdGame extends FlameGame with TapDetector, HasCollisionDetection {
   }
 
   void _startPipeTimer() {
-    _pipeTimer?.cancel(); // Ab ye 100% chalega!
+    _pipeTimer?.cancel();
     _pipeTimer = async.Timer.periodic(const Duration(milliseconds: 1450), (_) {
       if (status == GameStatus.playing && isLoaded) _spawnPipe();
     });
