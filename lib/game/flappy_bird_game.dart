@@ -2,7 +2,7 @@ import 'dart:async' as async;
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart' hide Timer;
-import 'package:flame/events.dart';
+import 'package:flame/events.dart'; // TapCallbacks provides modern tap handling
 import 'package:flame/game.dart' hide Timer;
 import 'package:flutter/foundation.dart';
 
@@ -15,7 +15,7 @@ import 'components/pipe.dart';
 
 enum GameStatus { playing, gameOver, adPaused }
 
-class FlappyBirdGame extends FlameGame with TapDetector, HasCollisionDetection {
+class FlappyBirdGame extends FlameGame with TapCallbacks, HasCollisionDetection {
   FlappyBirdGame({required this.adService});
 
   final AdService adService;
@@ -60,9 +60,8 @@ class FlappyBirdGame extends FlameGame with TapDetector, HasCollisionDetection {
   void _incrementScore() { score.value++; }
 
   @override
-  void onTapDown(TapDownInfo info) {
+  void onTapDown(TapDownEvent event) {
     if (status == GameStatus.playing) bird.jump();
-    super.onTapDown(info);
   }
 
   @override
@@ -74,7 +73,6 @@ class FlappyBirdGame extends FlameGame with TapDetector, HasCollisionDetection {
 
   @override
   void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollisionStart(intersectionPoints, other);
     if (status == GameStatus.playing && (other is Ground || other is PipeGroup || other.parent is PipeGroup)) gameOver();
   }
 
