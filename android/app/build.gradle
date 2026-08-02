@@ -34,18 +34,22 @@ android {
 
     signingConfigs {
         release {
-            if (keystorePropertiesFile.exists()) {
+            if (keystorePropertiesFile.exists() && keystoreProperties['storeFile']) {
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
                 storeFile file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
+            } else {
+                // Fallback to debug signature if key.properties is not found on server
+                signingConfig signingConfigs.debug
             }
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            // Apply signing config
+            signingConfig (keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug)
             minifyEnabled false
             shrinkResources false
         }
