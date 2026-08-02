@@ -16,6 +16,6 @@ android/app/profile/
 android/app/release/
 
 # Security Fix: Keystore files ko GitHub par secret rakhne ke liye
-android/key.properties
+#android/key.properties
 *.keystore
 *.jks
