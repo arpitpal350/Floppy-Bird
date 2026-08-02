@@ -4,8 +4,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Owns all ad lifecycles. Use test devices during development to avoid invalid traffic.
 class AdService {
-  static const _interstitialUnitId = 'ca-app-pub-2443131689614210/8842604358';
-  static const _rewardedUnitId = 'ca-app-pub-2443131689614210/9169073267';
+  static const _interstitialUnitId = 'ca-app-pub-3940256099942544/1033173712';
+  static const _rewardedUnitId = 'ca-app-pub-3940256099942544/5224354917';
   InterstitialAd? _interstitialAd;
   RewardedAd? _rewardedAd;
   Timer? _interstitialTimer;
