@@ -4,7 +4,7 @@
         android:label="floppy_bird" 
         android:name="${applicationName}" 
         android:icon="@android:drawable/sym_def_app_icon">
-        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-2443131689614210~6211471503" />
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-3940256099942544~3347511713" />
         <activity 
             android:name=".MainActivity" 
             android:exported="true" 
