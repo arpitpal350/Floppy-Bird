@@ -1,6 +1,6 @@
 workflows:
   android-release:
-    name: Android Release APK
+    name: Android Release APK & AAB
     max_build_duration: 60
     environment:
       flutter: stable
@@ -8,7 +8,10 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-      - name: Build release APK
+      - name: Build release APK (Direct Share)
         script: flutter build apk --release
+      - name: Build release App Bundle (Play Store)
+        script: flutter build appbundle --release
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
