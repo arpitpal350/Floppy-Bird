@@ -1,6 +1,7 @@
 name: flappy_bird
 description: A production-ready Flame Floppy Bird game with Unity Ads.
 publish_to: none
+
 version: 1.0.0+1
 
 environment:
@@ -11,9 +12,7 @@ dependencies:
     sdk: flutter
 
   flame: ^1.18.0
-
-  # Update to the latest version available
-  unity_ads_plugin: ^0.3.8
+  unity_ads_plugin: ^0.3.27
 
 dev_dependencies:
   flutter_test:
