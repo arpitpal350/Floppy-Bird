@@ -1,70 +1,79 @@
 import 'dart:async';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-
-/// Owns all ad lifecycles. Use test devices during development to avoid invalid traffic.
+/// Owns Unity Ads lifecycles for Floppy Bird.
 class AdService {
-  static const _interstitialUnitId = 'ca-app-pub-3940256099942544/1033173712';
-  static const _rewardedUnitId = 'ca-app-pub-3940256099942544/5224354917';
-  InterstitialAd? _interstitialAd;
-  RewardedAd? _rewardedAd;
+  static const _gameId = '800111386';
+  static const _interstitialPlacementId = 'Interstitial_Android';
+  static const _rewardedPlacementId = 'Rewarded_Android';
+
   Timer? _interstitialTimer;
   bool _showingInterstitial = false;
 
-  void initialize({required bool Function() isGameActive, required void Function() pauseGame, required void Function() resumeGame}) {
-    loadInterstitial();
-    loadRewarded();
+  void initialize({
+    required bool Function() isGameActive,
+    required void Function() pauseGame,
+    required void Function() resumeGame,
+  }) {
+    UnityAds.init(
+      gameId: _gameId,
+      testMode: false, // REAL ADS
+      onComplete: () => print('✅ Unity Ads Initialized for Floppy Bird!'),
+      onFailed: (error, message) => print('❌ Unity Ads Init Failed: $message'),
+    );
+
     _interstitialTimer?.cancel();
     _interstitialTimer = Timer.periodic(const Duration(minutes: 2), (_) {
-      if (isGameActive()) showInterstitial(pauseGame: pauseGame, resumeGame: resumeGame);
+      if (isGameActive()) {
+        showInterstitial(pauseGame: pauseGame, resumeGame: resumeGame);
+      }
     });
   }
 
-  void loadInterstitial() {
-    if (_interstitialAd != null) return;
-    InterstitialAd.load(
-      adUnitId: _interstitialUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad) => _interstitialAd = ad, onAdFailedToLoad: (_) => _interstitialAd = null),
-    );
-  }
+  void showInterstitial({
+    required void Function() pauseGame,
+    required void Function() resumeGame,
+  }) {
+    if (_showingInterstitial) return;
 
-  void loadRewarded() {
-    if (_rewardedAd != null) return;
-    RewardedAd.load(
-      adUnitId: _rewardedUnitId,
-      request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(onAdLoaded: (ad) => _rewardedAd = ad, onAdFailedToLoad: (_) => _rewardedAd = null),
-    );
-  }
-
-  void showInterstitial({required void Function() pauseGame, required void Function() resumeGame}) {
-    final ad = _interstitialAd;
-    if (ad == null || _showingInterstitial) {
-      loadInterstitial();
-      return;
-    }
-    _interstitialAd = null;
     _showingInterstitial = true;
     pauseGame();
-    ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (ad) { ad.dispose(); _showingInterstitial = false; resumeGame(); loadInterstitial(); },
-      onAdFailedToShowFullScreenContent: (ad, _) { ad.dispose(); _showingInterstitial = false; resumeGame(); loadInterstitial(); },
+
+    UnityAds.showVideoAd(
+      placementId: _interstitialPlacementId,
+      onStart: (placementId) => print('Interstitial Started'),
+      onClick: (placementId) => print('Interstitial Clicked'),
+      onSkipped: (placementId) {
+        _showingInterstitial = false;
+        resumeGame();
+      },
+      onComplete: (placementId) {
+        _showingInterstitial = false;
+        resumeGame();
+      },
+      onFailed: (placementId, error, message) {
+        print('❌ Interstitial Failed: $message');
+        _showingInterstitial = false;
+        resumeGame();
+      },
     );
-    ad.show();
   }
 
-  /// Calls [onRewardEarned] only after the SDK confirms the reward.
+  /// Calls [onRewardEarned] only after the user finishes watching the video.
   void showRewardedAd({required void Function() onRewardEarned}) {
-    final ad = _rewardedAd;
-    if (ad == null) { loadRewarded(); return; }
-    _rewardedAd = null;
-    ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (ad) { ad.dispose(); loadRewarded(); },
-      onAdFailedToShowFullScreenContent: (ad, _) { ad.dispose(); loadRewarded(); },
+    UnityAds.showVideoAd(
+      placementId: _rewardedPlacementId,
+      onComplete: (placementId) {
+        print('✅ Rewarded Ad Watched Successfully!');
+        onRewardEarned();
+      },
+      onFailed: (placementId, error, message) {
+        print('❌ Rewarded Ad Failed: $message');
+      },
     );
-    ad.show(onUserEarnedReward: (_, __) => onRewardEarned());
   }
 
-  void dispose() { _interstitialTimer?.cancel(); _interstitialAd?.dispose(); _rewardedAd?.dispose(); }
+  void dispose() {
+    _interstitialTimer?.cancel();
+  }
 }
