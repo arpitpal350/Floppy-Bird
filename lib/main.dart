@@ -1,15 +1,14 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'game/flappy_bird_game.dart';
 import 'overlays/game_over_overlay.dart';
 import 'overlays/hud_overlay.dart';
 import 'services/ad_service.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await MobileAds.instance.initialize();
+  
   final adService = AdService();
   runApp(FlappyBirdApp(adService: adService));
 }
