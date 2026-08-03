@@ -16,12 +16,12 @@ android {
     ndkVersion flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '1.8'
     }
 
     defaultConfig {
@@ -45,7 +45,6 @@ android {
 
     buildTypes {
         release {
-            // Apply release signing ONLY if key.properties actually exists
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
