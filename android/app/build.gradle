@@ -54,4 +54,9 @@ android {
     }
 }
 
+// 🎯 YE LINEO KO BILKUL LAST MEIN ADD KARO (Force Java 17 Toolchain)
+kotlin {
+    jvmToolchain(17)
+}
+
 flutter { source '../..' }
