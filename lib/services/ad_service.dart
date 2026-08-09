@@ -4,9 +4,9 @@ import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 /// Keeps advertisements optional: failed SDK work never reaches gameplay.
 class AdService {
   // Replace these before a production store release. Keep testMode true until then.
-  static const androidGameId = 'YOUR_UNITY_ANDROID_GAME_ID';
-  static const interstitialUnitId = 'YOUR_INTERSTITIAL_AD_UNIT_ID';
-  static const rewardedUnitId = 'YOUR_REWARDED_AD_UNIT_ID';
+  static const androidGameId = '800111386';
+  static const interstitialUnitId = 'Interstitial_Android';
+  static const rewardedUnitId = 'Rewarded_Android';
   bool _ready = false;
   bool _interstitialLoaded = false;
   bool _rewardedLoaded = false;
