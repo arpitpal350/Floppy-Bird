@@ -1,41 +1,150 @@
 import 'dart:async';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
-/// Keeps advertisements optional: failed SDK work never reaches gameplay.
+/// Unity Ads service for production.
 class AdService {
-  // Replace these before a production store release. Keep testMode true until then.
-  static const androidGameId = '800111386';
-  static const interstitialUnitId = 'Interstitial_Android';
-  static const rewardedUnitId = 'Rewarded_Android';
+  // Unity Ads Android Game ID
+  static const String androidGameId = '800111386';
+
+  // Unity Ads placement IDs
+  static const String interstitialUnitId = 'Interstitial_Android';
+  static const String rewardedUnitId = 'Rewarded_Android';
+
   bool _ready = false;
   bool _interstitialLoaded = false;
   bool _rewardedLoaded = false;
 
+  /// Initializes Unity Ads and preloads ads.
   Future<void> initialize() async {
-    if (androidGameId.startsWith('YOUR_')) return;
     try {
-      await UnityAds.init(gameId: androidGameId, testMode: true, onComplete: () { _ready = true; }, onFailed: (_, __) { _ready = false; });
+      await UnityAds.init(
+        gameId: androidGameId,
+        testMode: false,
+        onComplete: () {
+          _ready = true;
+        },
+        onFailed: (_, __) {
+          _ready = false;
+        },
+      );
+
       _ready = await UnityAds.isInitialized();
-      if (_ready) { await _loadInterstitial(); await _loadRewarded(); }
-    } catch (_) { _ready = false; }
+
+      if (_ready) {
+        await _loadInterstitial();
+        await _loadRewarded();
+      }
+    } catch (_) {
+      _ready = false;
+    }
   }
+
+  /// Loads an interstitial ad.
   Future<void> _loadInterstitial() async {
-    if (!_ready || interstitialUnitId.startsWith('YOUR_')) return;
-    await UnityAds.load(placementId: interstitialUnitId, onComplete: (_) => _interstitialLoaded = true, onFailed: (_, __, ___) => _interstitialLoaded = false);
+    if (!_ready) return;
+
+    try {
+      await UnityAds.load(
+        placementId: interstitialUnitId,
+        onComplete: (_) {
+          _interstitialLoaded = true;
+        },
+        onFailed: (_, __, ___) {
+          _interstitialLoaded = false;
+        },
+      );
+    } catch (_) {
+      _interstitialLoaded = false;
+    }
   }
+
+  /// Loads a rewarded ad.
   Future<void> _loadRewarded() async {
-    if (!_ready || rewardedUnitId.startsWith('YOUR_')) return;
-    await UnityAds.load(placementId: rewardedUnitId, onComplete: (_) => _rewardedLoaded = true, onFailed: (_, __, ___) => _rewardedLoaded = false);
+    if (!_ready) return;
+
+    try {
+      await UnityAds.load(
+        placementId: rewardedUnitId,
+        onComplete: (_) {
+          _rewardedLoaded = true;
+        },
+        onFailed: (_, __, ___) {
+          _rewardedLoaded = false;
+        },
+      );
+    } catch (_) {
+      _rewardedLoaded = false;
+    }
   }
+
+  /// Shows an interstitial ad if one is loaded.
   Future<void> showInterstitialIfReady() async {
-    if (!_interstitialLoaded) return;
+    if (!_ready || !_interstitialLoaded) return;
+
     _interstitialLoaded = false;
-    try { await UnityAds.showVideoAd(placementId: interstitialUnitId, onComplete: (_) { _loadInterstitial(); }, onSkipped: (_) { _loadInterstitial(); }, onFailed: (_, __, ___) { _loadInterstitial(); }); } catch (_) { _loadInterstitial(); }
+
+    try {
+      await UnityAds.showVideoAd(
+        placementId: interstitialUnitId,
+        onComplete: (_) {
+          _loadInterstitial();
+        },
+        onSkipped: (_) {
+          _loadInterstitial();
+        },
+        onFailed: (_, __, ___) {
+          _loadInterstitial();
+        },
+      );
+    } catch (_) {
+      _loadInterstitial();
+    }
   }
+
+  /// Shows a rewarded ad if one is loaded.
+  ///
+  /// Returns true only when the user watches the rewarded ad
+  /// to completion.
   Future<bool> showRewardedIfReady() async {
-    if (!_rewardedLoaded) return false;
-    final result = Completer<bool>(); _rewardedLoaded = false;
-    try { await UnityAds.showVideoAd(placementId: rewardedUnitId, onComplete: (_) { _loadRewarded(); if (!result.isCompleted) result.complete(true); }, onSkipped: (_) { _loadRewarded(); if (!result.isCompleted) result.complete(false); }, onFailed: (_, __, ___) { _loadRewarded(); if (!result.isCompleted) result.complete(false); }); } catch (_) { _loadRewarded(); return false; }
-    return result.future.timeout(const Duration(minutes: 2), onTimeout: () => false);
+    if (!_ready || !_rewardedLoaded) return false;
+
+    _rewardedLoaded = false;
+
+    final Completer<bool> result = Completer<bool>();
+
+    try {
+      await UnityAds.showVideoAd(
+        placementId: rewardedUnitId,
+        onComplete: (_) {
+          _loadRewarded();
+
+          if (!result.isCompleted) {
+            result.complete(true);
+          }
+        },
+        onSkipped: (_) {
+          _loadRewarded();
+
+          if (!result.isCompleted) {
+            result.complete(false);
+          }
+        },
+        onFailed: (_, __, ___) {
+          _loadRewarded();
+
+          if (!result.isCompleted) {
+            result.complete(false);
+          }
+        },
+      );
+    } catch (_) {
+      _loadRewarded();
+      return false;
+    }
+
+    return result.future.timeout(
+      const Duration(minutes: 2),
+      onTimeout: () => false,
+    );
   }
 }
